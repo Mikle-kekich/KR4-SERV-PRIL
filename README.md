@@ -22,73 +22,77 @@
    venv\Scripts\activate
    # Для Linux/MacOS:
    source venv/bin/activate
-  Установите все необходимые библиотеки:
+   ```
+3. **Установите все необходимые библиотеки**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Bash
-pip install -r requirements.txt
-🗄 2. Проверка Задания 9.1 (Миграции Alembic)
+---
+
+## 🗄 2. Проверка Задания 9.1 (Миграции Alembic)
+
 Для управления схемой БД выполните следующие шаги:
 
-Инициализация Alembic (если еще не создана папка):
+1. **Инициализация Alembic** (если еще не создана папка):
+   ```bash
+   python -m alembic init alembic
+   ```
+2. **Настройка**: В файле `alembic.ini` установите путь к БД: `sqlalchemy.url = sqlite:///./test.db`. В `alembic/env.py` укажите `target_metadata = Base.metadata` (не забудьте импортировать `Base` из `task_9_1.models`).
+3. **Первая миграция (Создание таблицы Product)**:
+   ```bash
+   python -m alembic revision --autogenerate -m "Initial migration"
+   python -m alembic upgrade head
+   ```
+4. **Вторая миграция (Добавление поля description)**:
+   * Откройте `task_9_1/models.py` и раскомментируйте поле `description`.
+   * Выполните:
+     ```bash
+     python -m alembic revision --autogenerate -m "Add description"
+     python -m alembic upgrade head
+     ```
 
-Bash
-python -m alembic init alembic
-Настройка: В файле alembic.ini установите путь к БД: sqlalchemy.url = sqlite:///./test.db. В alembic/env.py укажите target_metadata = Base.metadata (не забудьте импортировать Base из task_9_1.models).
+---
 
-Первая миграция (Создание таблицы Product):
+## 🚀 3. Проверка Заданий 10.1 и 10.2 (FastAPI)
 
-Bash
-python -m alembic revision --autogenerate -m "Initial migration"
-python -m alembic upgrade head
-Вторая миграция (Добавление поля description):
+### Задание 10.1: Кастомные исключения
 
-Откройте task_9_1/models.py и раскомментируйте поле description.
-
-Выполните:
-
-Bash
-python -m alembic revision --autogenerate -m "Add description"
-python -m alembic upgrade head
-🚀 3. Проверка Заданий 10.1 и 10.2 (FastAPI)
-Задание 10.1: Кастомные исключения
 Запустите сервер:
+```bash
+python -m uvicorn task_10_1_main:app --reload
+```
 
-Bash
-uvicorn task_10_1_main:app --reload
-Как проверить:
+**Как проверить:**
+* Откройте [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+* Вызовите `/check-condition?is_valid=false` — вы получите структурированную ошибку **400**.
+* Вызовите `/resource/99` — вы получите ошибку **404** с вашим кастомным сообщением.
 
-Откройте http://127.0.0.1:8000/docs.
+### Задание 10.2: Валидация данных (Pydantic)
 
-Вызовите /check-condition?is_valid=false — вы получите структурированную ошибку 400.
-
-Вызовите /resource/99 — вы получите ошибку 404 с вашим кастомным сообщением.
-
-Задание 10.2: Валидация данных (Pydantic)
 Запустите сервер:
+```bash
+python -m uvicorn task_10_2_main:app --reload
+```
 
-Bash
-uvicorn task_10_2_main:app --reload
-Как проверить:
+**Как проверить:**
+* В Swagger UI попробуйте отправить POST запрос на `/users/` с некорректными данными (например, `age: 10` или `password: "123"`).
+* Система вернет код **422** и детальный JSON с перечислением полей, не прошедших валидацию.
 
-В Swagger UI попробуйте отправить POST запрос на /users/ с некорректными данными (например, age: 10 или password: "123").
+---
 
-Система вернет код 422 и детальный JSON с перечислением полей, не прошедших валидацию.
+## 🧪 4. Проверка Заданий 11.1 и 11.2 (Тестирование)
 
-🧪 4. Проверка Заданий 11.1 и 11.2 (Тестирование)
-Мы реализовали синхронные тесты (TestClient) и асинхронные тесты (AsyncClient + Faker).
+Мы реализовали синхронные тесты (`TestClient`) и асинхронные тесты (`AsyncClient` + `Faker`).
 
-Запуск всех тестов сразу:
+**Запуск всех тестов сразу:**
+```bash
+python -m pytest task_11/ -v
+```
 
-Bash
-pytest task_11/ -v
-Что именно тестируется:
-
-test_sync.py (11.1): Проверка CRUD-логики в обычном режиме.
-
-test_async.py (11.2):
-
-Асинхронное выполнение запросов через ASGITransport.
-
-Генерация случайных имен и данных через библиотеку Faker.
-
-Изоляция состояния (база данных очищается перед каждым тестом через фикстуру).
+**Что именно тестируется:**
+* `test_sync.py` (11.1): Проверка CRUD-логики в обычном режиме.
+* `test_async.py` (11.2):
+  * Асинхронное выполнение запросов через `ASGITransport`.
+  * Генерация случайных имен и данных через библиотеку **Faker**.
+  * Изоляция состояния (база данных очищается перед каждым тестом через фикстуру).
